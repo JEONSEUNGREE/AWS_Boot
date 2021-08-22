@@ -1,6 +1,8 @@
 package com.example.AWS_BOOT.web;
 
 
+import com.example.AWS_BOOT.web.config.auth.LoginUser;
+import com.example.AWS_BOOT.web.config.auth.dto.SessionUser;
 import com.example.AWS_BOOT.web.dto.PostsResponseDto;
 import com.example.AWS_BOOT.web.service.PostsService;
 import lombok.RequiredArgsConstructor;
@@ -10,18 +12,28 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import javax.servlet.http.HttpSession;
+
 @Slf4j
 @RequiredArgsConstructor
 @Controller
 public class IndexController {
 
     private final PostsService postsService;
+    private final HttpSession httpSession;
 
     @GetMapping("/")
-    public String index(Model model) {
+    public String index(Model model, @LoginUser SessionUser user) {
+
         model.addAttribute("posts", postsService.findAllDesc());
 //        model 서버 템플릿 엔진에서 사용하는 객체
 //        postsService.findAllDesc()로 가져온 결과를 posts로 index.mustache에 전달한다.
+
+//        SessionUser sessionUser = (SessionUser) httpSession.getAttribute("user"); @LoginUser 어노테이션 대체
+
+        if (user != null) {
+            model.addAttribute("userName", user.getName());
+        }
 
         return "index";
 //        현재 머스테치 스타터를 통해 컨트롤러에서 문자열을 반환시 앞의 경로와 뒤의 파일 확장자는 자동으로 지정됨
@@ -46,5 +58,7 @@ public class IndexController {
         log.info("id()"+ id);
         return "posts-update";
     }
+
+
 
 }
